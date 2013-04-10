@@ -19,3 +19,8 @@ You can pipe input/output using `<`/`>`. These operators support the following t
 *Note that error reporting is not yet implemented.*
 
 For a full example, see [the example program](src/Example/Program.cs).
+
+Unanswered questions
+--------------------
+
+Maybe `await` should perform the same as `await (...).Execute()`?
