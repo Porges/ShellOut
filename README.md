@@ -3,7 +3,7 @@ ShellOut
 
 An integrated shell syntax for C#.
 
-Somewhat inspired by: http://julialang.org/blog/2012/03/shelling-out-sucks/
+Somewhat (mis)inspired by: http://julialang.org/blog/2012/03/shelling-out-sucks/
 
 You can run a process using `Shell.Run(executableName, arg1, arg2, arg3, etc)`.
 
