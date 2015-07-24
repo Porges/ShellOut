@@ -11,12 +11,54 @@ namespace ShellOut.Native
 {
     internal static class NativeMethods
     {
+        private static IntPtr _stdIn;
+        private static IntPtr _stdOut;
+        private static IntPtr _stdErr;
+
         public static SafeFileHandle GetStdHandleChecked(StdHandle handle)
         {
-            var result = GetStdHandle(handle);
-            if (result == IntPtr.Zero)
+            IntPtr cached;
+            switch (handle)
             {
-                throw new Win32Exception();
+                case StdHandle.Input:
+                    cached = _stdIn;
+                    break;
+                case StdHandle.Output:
+                    cached = _stdOut;
+                    break;
+                case StdHandle.Error:
+                    cached = _stdErr;
+                    break;
+                default:
+                    cached = IntPtr.Zero;
+                    break;
+            }
+
+            IntPtr result;
+            if (cached != IntPtr.Zero)
+            {
+                result = cached;
+            }
+            else
+            {
+                result = GetStdHandle(handle);
+                if (result == IntPtr.Zero)
+                {
+                    throw new Win32Exception();
+                }
+
+                switch (handle)
+                {
+                    case StdHandle.Input:
+                        _stdIn = result;
+                        break;
+                    case StdHandle.Output:
+                        _stdOut = result;
+                        break;
+                    case StdHandle.Error:
+                        _stdErr = result;
+                        break;
+                }
             }
 
             return new SafeFileHandle(result, false); // don't close this
