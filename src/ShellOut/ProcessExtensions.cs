@@ -25,7 +25,7 @@ namespace ShellOut
         /// <remarks>
         /// There is a (brief) time delay between when the handle is signaled and when the task is marked as completed.
         /// </remarks>
-        public static Task ToTask(this WaitHandle handle)
+        private static Task ToTask(this WaitHandle handle)
         {
             var tcs = new TaskCompletionSource<object>();
             var localVariableInitLock = new object();
@@ -43,7 +43,10 @@ namespace ShellOut
                         {
                             callbackHandle.Unregister(null);
                         }
-                    }, null, Timeout.Infinite, executeOnlyOnce: true);
+                    },
+                    null,
+                    Timeout.Infinite,
+                    executeOnlyOnce: true);
             }
 
             return tcs.Task;

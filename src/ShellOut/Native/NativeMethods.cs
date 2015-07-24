@@ -15,7 +15,10 @@ namespace ShellOut.Native
         {
             var result = GetStdHandle(handle);
             if (result == IntPtr.Zero)
+            {
                 throw new Win32Exception();
+            }
+
             return new SafeFileHandle(result, false); // don't close this
         }
 
@@ -27,7 +30,9 @@ namespace ShellOut.Native
         public static void CreatePipeChecked(out SafeFileHandle readPipe, out SafeFileHandle writePipe)
         {
             if (!CreatePipe(out readPipe, out writePipe))
+            {
                 throw new Win32Exception();
+            }
         }
 
         [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
@@ -41,8 +46,10 @@ namespace ShellOut.Native
         public static SafeFileHandle CreateFileChecked(string filename, FileMode mode)
         {
             if (mode != FileMode.Create && mode != FileMode.Open)
-                throw new ArgumentException("mode must be Create or Open", "mode");
-            
+            {
+                throw new ArgumentException("mode must be Create or Open", nameof(mode));
+            }
+
             var result = CreateFile(filename,
                 mode == FileMode.Create ? DesiredAccess.GenericWrite : DesiredAccess.GenericRead,
                 0, IntPtr.Zero,
@@ -107,7 +114,9 @@ namespace ShellOut.Native
         public static void SetHandleInformationChecked(SafeHandle handle, HandleFlags mask, HandleFlags flags)
         {
             if (!SetHandleInformation(handle, mask, flags))
+            {
                 throw new Win32Exception();
+            }
         }
 
         public static ProcessInfo CreateProcessChecked(
@@ -143,8 +152,11 @@ namespace ShellOut.Native
                 throw new Win32Exception(errorCode);
             }
 
-            return new ProcessInfo(processHandle, threadHandle, processInformation.ProcessId,
-                                   processInformation.ThreadId);
+            return new ProcessInfo(
+                processHandle,
+                threadHandle,
+                processInformation.ProcessId,
+                processInformation.ThreadId);
         }
 
         private struct InteropProcessInfo
@@ -156,25 +168,13 @@ namespace ShellOut.Native
             private int _threadId;
             #pragma warning restore 649
 
-            public IntPtr ProcessHandle
-            {
-                get { return _process; }
-            }
+            public IntPtr ProcessHandle => _process;
 
-            public IntPtr ThreadHandle
-            {
-                get { return _thread; }
-            }
+            public IntPtr ThreadHandle => _thread;
 
-            public int ProcessId
-            {
-                get { return _processId; }
-            }
+            public int ProcessId => _processId;
 
-            public int ThreadId
-            {
-                get { return _threadId; }
-            }
+            public int ThreadId => _threadId;
         }
     }
 }

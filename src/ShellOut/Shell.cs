@@ -7,35 +7,17 @@ namespace ShellOut
 {
     public abstract class Shell
     {
-        public static ShellProcess Run(string executable, params object[] args)
-        {
-            return new ShellProcess(executable, args);
-        }
+        public static ShellProcess Run(string executable, params object[] args) => new ShellProcess(executable, args);
 
-        public static ShellPipe operator |(Shell left, Shell right)
-        {
-            return new ShellPipe(left, right);
-        }
+        public static ShellPipe operator |(Shell left, Shell right) => new ShellPipe(left, right);
 
-        public static Shell operator >(Shell left, string right)
-        {
-            return new RedirectedOutputPipe(left, right);
-        }
-        
-        public static Shell operator <(Shell left, string right)
-        {
-            return new RedirectedInputPipe(left, right);
-        }
+        public static Shell operator >(Shell left, string right) => new RedirectedOutputPipe(left, right);
 
-        public static Shell operator >(Shell left, Stream right)
-        {
-            return new RedirectedOutputPipe(left, right);
-        }
+        public static Shell operator <(Shell left, string right) => new RedirectedInputPipe(left, right);
 
-        public static Shell operator <(Shell left, Stream right)
-        {
-            return new RedirectedInputPipe(left, right);
-        }
+        public static Shell operator >(Shell left, Stream right) => new RedirectedOutputPipe(left, right);
+
+        public static Shell operator <(Shell left, Stream right) => new RedirectedInputPipe(left, right);
 
         public async Task Execute()
         {
@@ -48,6 +30,5 @@ namespace ShellOut
         }
 
         public abstract Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error);
-
     }
 }

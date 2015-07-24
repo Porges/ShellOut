@@ -2,7 +2,7 @@ using System;
 
 namespace ShellOut.Native
 {
-    sealed class ProcessInfo : IDisposable
+    internal sealed class ProcessInfo : IDisposable
     {
         private readonly SafeProcessHandle _processHandle;
         private readonly SafeProcessHandle _threadHandle;
@@ -17,20 +17,11 @@ namespace ShellOut.Native
             _threadId = threadId;
         }
 
-        public SafeProcessHandle ProcessHandle
-        {
-            get { return _processHandle; }
-        }
+        public SafeProcessHandle ProcessHandle => _processHandle;
 
-        public int ProcessId
-        {
-            get { return _processId; }
-        }
+        public int ProcessId => _processId;
 
-        public int ThreadId
-        {
-            get { return _threadId; }
-        }
+        public int ThreadId => _threadId;
 
         public void Dispose()
         {

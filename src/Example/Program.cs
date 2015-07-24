@@ -6,6 +6,8 @@ using ShellOut;
 
 namespace Example
 {
+    using static Shell;
+
     public static class Program
     {
         public static void Main()
@@ -15,9 +17,10 @@ namespace Example
 
         private static async Task RunExample()
         {
+
             // we can construct a pipeline. this is a first-class object so you can pass it around
             // and running it is reentrant
-            var pipeline = Shell.Run("ping", "localhost") | Shell.Run("findstr" /* grep */, "time") | Shell.Run("findstr", "1");
+            var pipeline = Run("ping", "localhost") | Run("findstr" /* grep */, "time") | Run("findstr", "1");
 
             {
                 Console.WriteLine("Printing to stdout:");
@@ -70,7 +73,7 @@ namespace Example
 
                 // a demo of reading from and writing to memory streams at the same time, using an external program as a filter:
 
-                var grep = Shell.Run("findstr", "or") < msIn > msOut;
+                var grep = Run("findstr", "or") < msIn > msOut;
                 Console.WriteLine("Pipeline is: {0}", grep);
                 await grep.Execute();
 

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 using ShellOut.Native;
+using static ShellOut.Utils;
 
 namespace ShellOut
 {
@@ -12,8 +13,15 @@ namespace ShellOut
 
         public ShellPipe(Shell left, Shell right)
         {
-            if (left == null) throw new ArgumentNullException("left");
-            if (right == null) throw new ArgumentNullException("right");
+            if (left == null)
+            {
+                throw new ArgumentNullException(nameof(left));
+            }
+
+            if (right == null)
+            {
+                throw new ArgumentNullException(nameof(right));
+            }
 
             _left = left;
             _right = right;
@@ -21,9 +29,20 @@ namespace ShellOut
 
         public override async Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
         {
-            if (input == null) throw new ArgumentNullException("input");
-            if (output == null) throw new ArgumentNullException("output");
-            if (error == null) throw new ArgumentNullException("error");
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (error == null)
+            {
+                throw new ArgumentNullException(nameof(error));
+            }
 
             SafeFileHandle readPipe;
             SafeFileHandle writePipe;
@@ -54,9 +73,6 @@ namespace ShellOut
             }
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} | {1}", _left, _right);
-        }
+        public override string ToString() => Invariant($"{_left} | {_right}");
     }
 }

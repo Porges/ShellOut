@@ -1,9 +1,9 @@
-﻿using System.Globalization;
-using Microsoft.Win32.SafeHandles;
+﻿using Microsoft.Win32.SafeHandles;
+using static ShellOut.Utils;
 
 namespace ShellOut
 {
-    class SimpleHandleProvider : IHandleProvider
+    internal sealed class SimpleHandleProvider : IHandleProvider
     {
         private readonly SafeFileHandle _handle;
 
@@ -12,14 +12,8 @@ namespace ShellOut
             _handle = handle;
         }
 
-        public SafeFileHandle CreateHandle()
-        {
-            return _handle;
-        }
+        public SafeFileHandle CreateHandle() => _handle;
 
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.InvariantCulture, "Handle: <{0}>", _handle.DangerousGetHandle());
-        }
+        public override string ToString() => Invariant($"Handle: <{_handle.DangerousGetHandle()}>");
     }
 }

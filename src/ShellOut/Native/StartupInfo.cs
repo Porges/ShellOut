@@ -9,12 +9,12 @@ namespace ShellOut.Native
         public static StartupInfo Create()
         {
             return new StartupInfo
-                       {
-                           _cb = Marshal.SizeOf(typeof(StartupInfo)),
-                           _stdError = new SafeFileHandle(IntPtr.Zero, false),
-                           _stdOutput = new SafeFileHandle(IntPtr.Zero, false),
-                           _stdInput = new SafeFileHandle(IntPtr.Zero, false)
-                       };
+               {
+                   _cb = Marshal.SizeOf(typeof(StartupInfo)),
+                   _stdError = new SafeFileHandle(IntPtr.Zero, false),
+                   _stdOutput = new SafeFileHandle(IntPtr.Zero, false),
+                   _stdInput = new SafeFileHandle(IntPtr.Zero, false)
+               };
         }
 
 #pragma warning disable 169 // unmanaged code needs these

@@ -6,14 +6,21 @@ using ShellOut.Native;
 
 namespace ShellOut
 {
-    class StreamWritingHandleProvider : IHandleProvider
+    internal class StreamWritingHandleProvider : IHandleProvider
     {
         private readonly Stream _stream;
 
         public StreamWritingHandleProvider(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (!stream.CanWrite) throw new ArgumentException("must be able to write to the stream", "stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            if (!stream.CanWrite)
+            {
+                throw new ArgumentException("Stream is not writable", nameof(stream));
+            }
 
             _stream = stream;
         }
@@ -35,9 +42,6 @@ namespace ShellOut
             return writePipe;
         }
 
-        public override string ToString()
-        {
-            return _stream.ToString();
-        }
+        public override string ToString() => _stream.ToString();
     }
 }

@@ -12,21 +12,22 @@ namespace ShellOut
 
         public FileOpeningHandleProvider(string filename, FileMode mode)
         {
-            if (filename == null) throw new ArgumentNullException("filename");
-            if (mode != FileMode.Create && mode != FileMode.Open) throw new ArgumentException("mode must be Create or Open", "mode");
+            if (filename == null)
+            {
+                throw new ArgumentNullException(nameof(filename));
+            }
+
+            if (mode != FileMode.Create && mode != FileMode.Open)
+            {
+                throw new ArgumentException("mode must be Create or Open", nameof(mode));
+            }
 
             _filename = filename;
             _mode = mode;
         }
 
-        public SafeFileHandle CreateHandle()
-        {
-            return NativeMethods.CreateFileChecked(_filename, _mode);
-        }
+        public SafeFileHandle CreateHandle() => NativeMethods.CreateFileChecked(_filename, _mode);
 
-        public override string ToString()
-        {
-            return string.Format("\"{0}\"", _filename);
-        }
+        public override string ToString() => "\"" + _filename + "\"";
     }
 }

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
 using ShellOut.Native;
+using SafeProcessHandle = ShellOut.Native.SafeProcessHandle;
 
 namespace ShellOut
 {
@@ -16,8 +17,15 @@ namespace ShellOut
 
         public ShellProcess(string executable, params object[] args)
         {
-            if (executable == null) throw new ArgumentNullException("executable");
-            if (args == null) throw new ArgumentNullException("args");
+            if (executable == null)
+            {
+                throw new ArgumentNullException(nameof(executable));
+            }
+
+            if (args == null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
 
             _executable = executable;
             _args = args.Select(x => Convert.ToString(x, CultureInfo.InvariantCulture)).ToArray();
@@ -25,9 +33,20 @@ namespace ShellOut
 
         public async override Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
         {
-            if (input == null) throw new ArgumentNullException("input");
-            if (output == null) throw new ArgumentNullException("output");
-            if (error == null) throw new ArgumentNullException("error");
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (error == null)
+            {
+                throw new ArgumentNullException(nameof(error));
+            }
 
             SetInheritable(input);
             SetInheritable(output);
@@ -68,11 +87,11 @@ namespace ShellOut
             return sb;
         }
 
-        private static readonly char[] _badChars = new[]{'"', ' '};
+        private static readonly char[] BadChars = {'"', ' '};
         private static void EscapeTo(StringBuilder builder, string arg)
         {
             // TODO: this is probably not completely correct
-            if (arg.IndexOfAny(_badChars) > 0)
+            if (arg.IndexOfAny(BadChars) > 0)
             {
                 builder.Append('\"');
                 builder.Append(arg.Replace("\"", "\\\""));
@@ -84,12 +103,10 @@ namespace ShellOut
             }
         }
 
-        private static void SetInheritable(SafeFileHandle handle)
-        {
+        private static void SetInheritable(SafeFileHandle handle) => 
             NativeMethods.SetHandleInformationChecked(handle, HandleFlags.Inherit, HandleFlags.Inherit);
-        }
 
-        class ProcessWaitHandle : WaitHandle
+        private class ProcessWaitHandle : WaitHandle
         {
             public ProcessWaitHandle(SafeProcessHandle handle)
             {
@@ -97,9 +114,6 @@ namespace ShellOut
             }
         }
 
-        public override string ToString()
-        {
-            return BuildCommandLine().ToString();
-        }
+        public override string ToString() => BuildCommandLine().ToString();
     }
 }

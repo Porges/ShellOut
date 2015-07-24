@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
+using static ShellOut.Utils;
 
 namespace ShellOut
 {
@@ -12,23 +13,30 @@ namespace ShellOut
 
         public RedirectedOutputPipe(Shell inner, IHandleProvider provider)
         {
-            if (inner == null) throw new ArgumentNullException("inner");
-            if (provider == null) throw new ArgumentNullException("provider");
+            if (inner == null)
+            {
+                throw new ArgumentNullException(nameof(inner));
+            }
+
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
 
             _inner = inner;
             _handle = provider;
         }
 
-        public RedirectedOutputPipe(Shell inner, string filename) : this(inner, GetFileOpeningProvider(filename))
+        public RedirectedOutputPipe(Shell inner, string filename)
+            : this(inner, GetFileOpeningProvider(filename))
         { }
 
-        public RedirectedOutputPipe(Shell inner, Stream stream) : this(inner, GetStreamHandleProvider(stream))
+        public RedirectedOutputPipe(Shell inner, Stream stream)
+            : this(inner, GetStreamHandleProvider(stream))
         { }
 
-        private static IHandleProvider GetFileOpeningProvider(string filename)
-        {
-            return new FileOpeningHandleProvider(filename, FileMode.Create);
-        }
+        private static IHandleProvider GetFileOpeningProvider(string filename) =>
+             new FileOpeningHandleProvider(filename, FileMode.Create);
 
         private static IHandleProvider GetStreamHandleProvider(Stream stream)
         {
@@ -44,9 +52,20 @@ namespace ShellOut
 
         public override async Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
         {
-            if (input == null) throw new ArgumentNullException("input");
-            if (output == null) throw new ArgumentNullException("output");
-            if (error == null) throw new ArgumentNullException("error");
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (output == null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            if (error == null)
+            {
+                throw new ArgumentNullException(nameof(error));
+            }
 
             using (var outputHandle = _handle.CreateHandle())
             {
@@ -54,9 +73,7 @@ namespace ShellOut
             }
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} > {1}", _inner, _handle);
-        }
+        public override string ToString() => Invariant($"{_inner} > {_handle}");
+
     }
 }

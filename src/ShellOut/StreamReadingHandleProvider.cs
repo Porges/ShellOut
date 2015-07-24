@@ -6,14 +6,21 @@ using ShellOut.Native;
 
 namespace ShellOut
 {
-    class StreamReadingHandleProvider : IHandleProvider
+    internal class StreamReadingHandleProvider : IHandleProvider
     {
         private readonly Stream _stream;
 
         public StreamReadingHandleProvider(Stream stream)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (!stream.CanRead) throw new ArgumentException("must be able to read from the stream", "stream");
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            if (!stream.CanRead)
+            {
+                throw new ArgumentException("Stream is not readable", nameof(stream));
+            }
 
             _stream = stream;
         }
@@ -35,9 +42,6 @@ namespace ShellOut
             return readPipe;
         }
 
-        public override string ToString()
-        {
-            return _stream.ToString();
-        }
+        public override string ToString() => _stream.ToString();
     }
 }
