@@ -1,12 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.IO.Pipes;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
-using ShellOut.Native;
 using static ShellOut.Utils;
 
 namespace ShellOut
 {
-    public class ShellPipe : Shell
+    public sealed class ShellPipe : Shell
     {
         private readonly Shell _left;
         private readonly Shell _right;
@@ -17,49 +17,31 @@ namespace ShellOut
             _right = right ?? throw new ArgumentNullException(nameof(right));
         }
 
-        public override async Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
+        public override async Task ExecuteWithStreams(Stream input, Stream output, Stream error)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
-
-            if (output == null)
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
-
-            if (error == null)
-            {
-                throw new ArgumentNullException(nameof(error));
-            }
-
-            SafeFileHandle readPipe;
-            SafeFileHandle writePipe;
-
-            NativeMethods.CreatePipeChecked(out readPipe, out writePipe);
-
-            using (var error2 = new SafeFileHandle(error.DangerousGetHandle(), false)) // TODO: a better way to do this?
+            using (var serverPipe = new AnonymousPipeServerStream(PipeDirection.Out))
+            using (var clientPipe = new AnonymousPipeClientStream(PipeDirection.In, serverPipe.ClientSafePipeHandle))
             {
                 await Task.WhenAll(
-                    RunLeft(input, writePipe, error),
-                    RunRight(readPipe, output, error2));
+                    RunLeft(input, serverPipe, error),
+                    RunRight(clientPipe, output, error));
             }
         }
-
-        private async Task RunLeft(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
+        
+        private async Task RunLeft(Stream input, AnonymousPipeServerStream output, Stream error)
         {
             using (output)
             {
-                await _left.ExecuteWithPipes(input, output, error);
+                await _left.ExecuteWithStreams(input, output, error);
+                output.WaitForPipeDrain();
             }
         }
 
-        private async Task RunRight(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
+        private async Task RunRight(Stream input, Stream output, Stream error)
         {
             using (input)
             {
-                await _right.ExecuteWithPipes(input, output, error);
+                await _right.ExecuteWithStreams(input, output, error);
             }
         }
 

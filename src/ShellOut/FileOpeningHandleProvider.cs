@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Win32.SafeHandles;
-using ShellOut.Native;
 
 namespace ShellOut
 {
-    public class FileOpeningHandleProvider : IHandleProvider
+    public class FileOpeningHandleProvider : IStreamProvider
     {
         private readonly string _filename;
         private readonly FileMode _mode;
@@ -21,7 +19,10 @@ namespace ShellOut
             _mode = mode;
         }
 
-        public SafeFileHandle CreateHandle() => NativeMethods.CreateFileChecked(_filename, _mode);
+        public Stream CreateStream() => new FileStream(_filename, _mode, Access, Share, 4096, true);
+
+        private FileAccess Access => _mode == FileMode.Open ? FileAccess.Read : FileAccess.Write;
+        private FileShare Share => _mode == FileMode.Open ? FileShare.Read : FileShare.None;
 
         public override string ToString() => "\"" + _filename + "\"";
     }

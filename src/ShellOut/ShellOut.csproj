@@ -72,6 +72,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Pipes, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipes.4.3.0\lib\net46\System.IO.Pipes.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -81,24 +84,18 @@
   <ItemGroup>
     <Compile Include="FileOpeningHandleProvider.cs" />
     <Compile Include="IHandleProvider.cs" />
-    <Compile Include="Native\HandleFlags.cs" />
-    <Compile Include="Native\NativeMethods.cs" />
-    <Compile Include="Native\ProcessInfo.cs" />
-    <Compile Include="Native\SafeProcessHandle.cs" />
-    <Compile Include="Native\StartFlags.cs" />
-    <Compile Include="Native\StartupInfo.cs" />
-    <Compile Include="ProcessExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedirectedInputPipe.cs" />
     <Compile Include="RedirectedOutputPipe.cs" />
     <Compile Include="Shell.cs" />
     <Compile Include="ShellPipe.cs" />
     <Compile Include="ShellProcess.cs" />
-    <Compile Include="SimpleHandleProvider.cs" />
-    <Compile Include="Native\StdHandle.cs" />
     <Compile Include="StreamReadingHandleProvider.cs" />
     <Compile Include="StreamWritingHandleProvider.cs" />
     <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

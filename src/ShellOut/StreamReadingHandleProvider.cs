@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
-using ShellOut.Native;
 
 namespace ShellOut
 {
-    internal class StreamReadingHandleProvider : IHandleProvider
+    internal class StreamReadingHandleProvider : IStreamProvider
     {
         private readonly Stream _stream;
 
@@ -25,22 +22,7 @@ namespace ShellOut
             _stream = stream;
         }
 
-        public SafeFileHandle CreateHandle()
-        {
-            SafeFileHandle writePipe;
-            SafeFileHandle readPipe;
-            NativeMethods.CreatePipeChecked(out readPipe, out writePipe);
-
-            Task.Run(async () =>
-            {
-                using (var fs = new FileStream(writePipe, FileAccess.Write))
-                {
-                    await _stream.CopyToAsync(fs);
-                }
-            });
-
-            return readPipe;
-        }
+        public Stream CreateStream() => _stream;
 
         public override string ToString() => _stream.ToString();
     }

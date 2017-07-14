@@ -1,7 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
-using ShellOut.Native;
 
 namespace ShellOut
 {
@@ -14,21 +12,13 @@ namespace ShellOut
         public static Shell operator >(Shell left, string right) => new RedirectedOutputPipe(left, right);
 
         public static Shell operator <(Shell left, string right) => new RedirectedInputPipe(left, right);
-
+        
         public static Shell operator >(Shell left, Stream right) => new RedirectedOutputPipe(left, right);
 
         public static Shell operator <(Shell left, Stream right) => new RedirectedInputPipe(left, right);
 
-        public async Task Execute()
-        {
-            using (var stdIn = NativeMethods.GetStdHandleChecked(StdHandle.Input))
-            using (var stdOut = NativeMethods.GetStdHandleChecked(StdHandle.Output))
-            using (var stdErr = NativeMethods.GetStdHandleChecked(StdHandle.Error))
-            {
-                await ExecuteWithPipes(stdIn, stdOut, stdErr);
-            }
-        }
+        public Task Execute() => ExecuteWithStreams(null, null, null);
 
-        public abstract Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error);
+        public abstract Task ExecuteWithStreams(Stream input, Stream output, Stream error);
     }
 }

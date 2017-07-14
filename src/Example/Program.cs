@@ -17,6 +17,13 @@ namespace Example
 
         private static async Task RunExample()
         {
+            var one = Run("ping", "localhost") | Run("findstr", "time");
+
+            {
+                Console.WriteLine("Testing ping...");
+                await one.Execute();
+            }
+
 
             // we can construct a pipeline. this is a first-class object so you can pass it around
             // and running it is reentrant

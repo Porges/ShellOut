@@ -2,11 +2,10 @@
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
-using ShellOut.Native;
-using SafeProcessHandle = ShellOut.Native.SafeProcessHandle;
+using System.Diagnostics;
+using System.IO;
+using System.Collections.Generic;
 
 namespace ShellOut
 {
@@ -26,60 +25,59 @@ namespace ShellOut
             _args = args.Select(x => Convert.ToString(x, CultureInfo.InvariantCulture)).ToArray();
         }
 
-        public async override Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
+        public async override Task ExecuteWithStreams(Stream input, Stream output, Stream error)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
-
-            if (output == null)
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
-
-            if (error == null)
-            {
-                throw new ArgumentNullException(nameof(error));
-            }
-
-            SetInheritable(input);
-            SetInheritable(output);
-            SetInheritable(error);
-
-            var startupInfo = StartupInfo.Create();
-            startupInfo.Flags = StartFlags.UseStdHandles;
-            startupInfo.StdInput = input;
-            startupInfo.StdOutput = output;
-            startupInfo.StdError = error;
-
-            using (var processInfo = NativeMethods.CreateProcessChecked(BuildCommandLine(), ref startupInfo))
-            {
-                input.Dispose();
-                output.Dispose();
-                error.Dispose();
-
-                using (var processHandle = new ProcessWaitHandle(processInfo.ProcessHandle))
+            var psi =
+                new ProcessStartInfo(_executable, BuildArguments())
                 {
-                    await processHandle;
+                    UseShellExecute = false,
+                    RedirectStandardInput = input != null,
+                    RedirectStandardError = error != null,
+                    RedirectStandardOutput = output != null,                  
+                };
+            
+            using (var process = Process.Start(psi))
+            {
+                var tasks = new List<Task>(3);
+
+                if (input != null)
+                {
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        using (var pi = process.StandardInput.BaseStream)
+                        {
+                            await input.CopyToAsync(pi);
+                        }
+                    }));
                 }
+
+                if (output != null)
+                {
+                    tasks.Add(process.StandardOutput.BaseStream.CopyToAsync(output));
+                }
+
+                if (error != null)
+                {
+                    tasks.Add(process.StandardError.BaseStream.CopyToAsync(error));
+                }
+                
+                await Task.WhenAll(tasks);
+
+                process.WaitForExit();
             }
         }
     
-        private StringBuilder BuildCommandLine()
+        private string BuildArguments()
         {
             var sb = new StringBuilder();
-            sb.Append('"');
-            sb.Append(_executable);
-            sb.Append("\" ");
-
             foreach (var arg in _args)
             {
                 sb.Append(' ');
 
                 EscapeTo(sb, arg);
             }
-            return sb;
+
+            return sb.ToString();
         }
 
         private static readonly char[] BadChars = {'"', ' '};
@@ -97,18 +95,7 @@ namespace ShellOut
                 builder.Append(arg);
             }
         }
-
-        private static void SetInheritable(SafeFileHandle handle) => 
-            NativeMethods.SetHandleInformationChecked(handle, HandleFlags.Inherit, HandleFlags.Inherit);
-
-        private class ProcessWaitHandle : WaitHandle
-        {
-            public ProcessWaitHandle(SafeProcessHandle handle)
-            {
-                SafeWaitHandle = new SafeWaitHandle(handle.DangerousGetHandle(), false);
-            }
-        }
-
-        public override string ToString() => BuildCommandLine().ToString();
+        
+        public override string ToString() => _executable + BuildArguments();
     }
 }

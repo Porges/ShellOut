@@ -1,69 +1,37 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 using static ShellOut.Utils;
 
 namespace ShellOut
 {
     public class RedirectedOutputPipe : Shell
     {
-        private readonly IHandleProvider _handle;
+        private readonly IStreamProvider _handle;
         private readonly Shell _inner;
 
-        public RedirectedOutputPipe(Shell inner, IHandleProvider provider)
+        private RedirectedOutputPipe(Shell inner, IStreamProvider provider)
         {
             _inner = inner ?? throw new ArgumentNullException(nameof(inner));
             _handle = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         public RedirectedOutputPipe(Shell inner, string filename)
-            : this(inner, GetFileOpeningProvider(filename))
+            : this(inner, new FileOpeningHandleProvider(filename, FileMode.Create))
         { }
 
         public RedirectedOutputPipe(Shell inner, Stream stream)
-            : this(inner, GetStreamHandleProvider(stream))
+            : this(inner, new StreamWritingHandleProvider(stream))
         { }
 
-        private static IHandleProvider GetFileOpeningProvider(string filename) =>
-             new FileOpeningHandleProvider(filename, FileMode.Create);
-
-        private static IHandleProvider GetStreamHandleProvider(Stream stream)
+        public override async Task ExecuteWithStreams(Stream input, Stream output, Stream error)
         {
-            // special case filestreams:
-            var fs = stream as FileStream;
-            if (fs != null)
+            using (var output2 = _handle.CreateStream())
             {
-                return new SimpleHandleProvider(new SafeFileHandle(fs.SafeFileHandle.DangerousGetHandle(), false));
-            }
-
-            return new StreamWritingHandleProvider(stream);
-        }
-
-        public override async Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)
-        {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
-
-            if (output == null)
-            {
-                throw new ArgumentNullException(nameof(output));
-            }
-
-            if (error == null)
-            {
-                throw new ArgumentNullException(nameof(error));
-            }
-
-            using (var outputHandle = _handle.CreateHandle())
-            {
-                await _inner.ExecuteWithPipes(input, outputHandle, error);
+                await _inner.ExecuteWithStreams(input, output2, error);
             }
         }
 
         public override string ToString() => Invariant($"{_inner} > {_handle}");
-
     }
 }
