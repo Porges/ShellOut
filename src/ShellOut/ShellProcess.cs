@@ -17,17 +17,12 @@ namespace ShellOut
 
         public ShellProcess(string executable, params object[] args)
         {
-            if (executable == null)
-            {
-                throw new ArgumentNullException(nameof(executable));
-            }
-
             if (args == null)
             {
                 throw new ArgumentNullException(nameof(args));
             }
 
-            _executable = executable;
+            _executable = executable ?? throw new ArgumentNullException(nameof(executable));
             _args = args.Select(x => Convert.ToString(x, CultureInfo.InvariantCulture)).ToArray();
         }
 

@@ -13,18 +13,8 @@ namespace ShellOut
 
         public RedirectedOutputPipe(Shell inner, IHandleProvider provider)
         {
-            if (inner == null)
-            {
-                throw new ArgumentNullException(nameof(inner));
-            }
-
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            _inner = inner;
-            _handle = provider;
+            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            _handle = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         public RedirectedOutputPipe(Shell inner, string filename)

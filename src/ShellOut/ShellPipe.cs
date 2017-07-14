@@ -13,18 +13,8 @@ namespace ShellOut
 
         public ShellPipe(Shell left, Shell right)
         {
-            if (left == null)
-            {
-                throw new ArgumentNullException(nameof(left));
-            }
-
-            if (right == null)
-            {
-                throw new ArgumentNullException(nameof(right));
-            }
-
-            _left = left;
-            _right = right;
+            _left = left ?? throw new ArgumentNullException(nameof(left));
+            _right = right ?? throw new ArgumentNullException(nameof(right));
         }
 
         public override async Task ExecuteWithPipes(SafeFileHandle input, SafeFileHandle output, SafeFileHandle error)

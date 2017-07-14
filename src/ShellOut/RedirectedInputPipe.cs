@@ -13,18 +13,8 @@ namespace ShellOut
 
         public RedirectedInputPipe(Shell inner, IHandleProvider provider)
         {
-            if (inner == null)
-            {
-                throw new ArgumentNullException(nameof(inner));
-            }
-
-            if (provider == null)
-            {
-                throw new ArgumentNullException(nameof(provider));
-            }
-
-            _inner = inner;
-            _handle = provider;
+            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            _handle = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         public RedirectedInputPipe(Shell inner, string filename)
@@ -36,15 +26,12 @@ namespace ShellOut
         { }
 
         private static IHandleProvider GetFilenameProvider(string filename)
-        {
-            return new FileOpeningHandleProvider(filename, FileMode.Open);
-        }
+            => new FileOpeningHandleProvider(filename, FileMode.Open);
 
         private static IHandleProvider GetStreamHandleProvider(Stream stream)
         {
-            // special case FileStreams:
-            var fs = stream as FileStream;
-            if (fs != null)
+            // special case FileStreams, as an optimization:
+            if (stream is FileStream fs)
             {
                 return new SimpleHandleProvider(new SafeFileHandle(fs.SafeFileHandle.DangerousGetHandle(), false));
             }

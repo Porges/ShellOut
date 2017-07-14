@@ -12,17 +12,12 @@ namespace ShellOut
 
         public FileOpeningHandleProvider(string filename, FileMode mode)
         {
-            if (filename == null)
-            {
-                throw new ArgumentNullException(nameof(filename));
-            }
-
             if (mode != FileMode.Create && mode != FileMode.Open)
             {
                 throw new ArgumentException("mode must be Create or Open", nameof(mode));
             }
 
-            _filename = filename;
+            _filename = filename ?? throw new ArgumentNullException(nameof(filename));
             _mode = mode;
         }
 
