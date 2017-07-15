@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace ShellOut
@@ -12,7 +13,7 @@ namespace ShellOut
         public static Shell operator >(Shell left, string right) => new RedirectedOutputPipe(left, right);
 
         public static Shell operator <(Shell left, string right) => new RedirectedInputPipe(left, right);
-        
+
         public static Shell operator >(Shell left, Stream right) => new RedirectedOutputPipe(left, right);
 
         public static Shell operator <(Shell left, Stream right) => new RedirectedInputPipe(left, right);

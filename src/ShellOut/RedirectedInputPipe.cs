@@ -19,11 +19,11 @@ namespace ShellOut
         public RedirectedInputPipe(Shell inner, string filename)
             : this(inner, new FileOpeningHandleProvider(filename, FileMode.Open))
         { }
-        
+
         public RedirectedInputPipe(Shell inner, Stream stream)
             : this(inner, new StreamReadingHandleProvider(stream))
         { }
-        
+
         public override async Task ExecuteWithStreams(Stream _, Stream output, Stream error)
         {
             using (var input = _handle.CreateStream())
@@ -31,7 +31,7 @@ namespace ShellOut
                 await _inner.ExecuteWithStreams(input, output, error);
             }
         }
-        
+
         public override string ToString() => Invariant($"{_inner} < {_handle}");
     }
 }

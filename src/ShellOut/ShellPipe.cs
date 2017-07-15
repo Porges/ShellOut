@@ -27,13 +27,13 @@ namespace ShellOut
                     RunRight(clientPipe, output, error));
             }
         }
-        
+
         private async Task RunLeft(Stream input, AnonymousPipeServerStream output, Stream error)
         {
             using (output)
             {
                 await _left.ExecuteWithStreams(input, output, error);
-                output.WaitForPipeDrain();
+                output.WaitForPipeDrain(); // TODO: is this necessary?
             }
         }
 

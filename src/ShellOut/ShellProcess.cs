@@ -33,9 +33,9 @@ namespace ShellOut
                     UseShellExecute = false,
                     RedirectStandardInput = input != null,
                     RedirectStandardError = error != null,
-                    RedirectStandardOutput = output != null,                  
+                    RedirectStandardOutput = output != null,
                 };
-            
+
             using (var process = Process.Start(psi))
             {
                 var tasks = new List<Task>(3);
@@ -60,13 +60,13 @@ namespace ShellOut
                 {
                     tasks.Add(process.StandardError.BaseStream.CopyToAsync(error));
                 }
-                
+
                 await Task.WhenAll(tasks);
 
                 process.WaitForExit();
             }
         }
-    
+
         private string BuildArguments()
         {
             var sb = new StringBuilder();
@@ -95,7 +95,7 @@ namespace ShellOut
                 builder.Append(arg);
             }
         }
-        
+
         public override string ToString() => _executable + BuildArguments();
     }
 }

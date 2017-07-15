@@ -24,11 +24,11 @@ namespace ShellOut
             : this(inner, new StreamWritingHandleProvider(stream))
         { }
 
-        public override async Task ExecuteWithStreams(Stream input, Stream output, Stream error)
+        public override async Task ExecuteWithStreams(Stream input, Stream _, Stream error)
         {
-            using (var output2 = _handle.CreateStream())
+            using (var output = _handle.CreateStream())
             {
-                await _inner.ExecuteWithStreams(input, output2, error);
+                await _inner.ExecuteWithStreams(input, output, error);
             }
         }
 
